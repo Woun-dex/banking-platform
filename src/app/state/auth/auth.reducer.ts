@@ -9,9 +9,17 @@ export interface AuthState {
     isLoading: boolean;
 }
 
+// Helper function to safely access localStorage
+function getStoredToken(): string | null {
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+        return localStorage.getItem('token');
+    }
+    return null;
+}
+
 export const initialAuthState: AuthState = {
     user: null,
-    token: localStorage.getItem('token'),
+    token: getStoredToken(),
     error: null,
     isLoading: false,
 }

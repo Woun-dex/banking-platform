@@ -12,11 +12,10 @@ export class AuthApiService {
     private readonly baseUrl = `${environment.apiUrl}/users`;
 
     constructor(private http: HttpClient) { 
-        console.log('🔧 AuthApiService initialized with baseUrl:', this.baseUrl);
     }
 
     login(credentials: LoginRequest) : Observable<AuthResponse> {
-        const url = `${this.baseUrl}/auth/token`;
+        const url = `${this.baseUrl}/auth/login`;
         console.log('📤 POST request to:', url, 'with credentials:', credentials);
         return this.http.post<AuthResponse>(url, credentials).pipe(
             tap(response => console.log('✅ Login response:', response)),

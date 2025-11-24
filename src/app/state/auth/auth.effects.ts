@@ -19,21 +19,46 @@ export class AuthEffects {
       mergeMap((action) =>
         this.authService.login(action.request).pipe(
           map((response) => {
+            console.log('🔍 Full login response:', response);
+            console.log('🔍 Response keys:', Object.keys(response));
 
-            localStorage.setItem('token', response.token);
+            // Extract token - handle different possible formats
+            const token: string = 
+              (response as any).access_token ||
+              (response as any).token ||
+              (response as any).jwt ||
+              (response as any).accessToken ||
+              '';
+
+            // Validate token exists and is now a string
+            if (!token || typeof token !== 'string') {
+              console.error('❌ Token extraction failed. Response structure:', response);
+              throw new Error('Invalid token received from server: token must be a string');
+            }
+
+            console.log('✅ Extracted token:', token.substring(0, 20) + '...');
+
+            // Store token in localStorage (only in browser)
+            if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+              localStorage.setItem('token', token);
+            }
             
-            const decoded: any = jwtDecode(response.token);
+            const decoded: any = jwtDecode(token);
+            console.log('🔍 Decoded token:', decoded);
+            
             const user = { 
-                id: response.userId, 
+                id: response.userId || (response as any).userId, 
                 username: decoded.sub, 
-                email: '' 
+                email: decoded.email, 
+                role: decoded.role 
             };
 
-            return AuthActions.loginSuccess({ token: response.token, user });
+            return AuthActions.loginSuccess({ token, user });
           }),
-          catchError((error) => 
-            of(AuthActions.loginFailure({ error: error.message || 'Login Failed' }))
-          )
+          catchError((error) => {
+            console.error('❌ Login effect error:', error);
+            return of(AuthActions.loginFailure({ error: error.message || 'Login Failed' }));
+          })
         )
       )
     )
