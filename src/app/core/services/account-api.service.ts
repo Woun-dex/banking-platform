@@ -7,7 +7,7 @@ import { CreateAccountDto , AccountResponse } from '../../shared/models/account.
 
 @Injectable({  providedIn: 'root'})
 export class AcountApiService {
-    private readonly baseUrl = `${environment.apiUrl}/${environment.apiVersion}/accounts`;
+    private readonly baseUrl = `${environment.apiUrl}/accounts`;
 
     constructor(private http: HttpClient) { }
 
