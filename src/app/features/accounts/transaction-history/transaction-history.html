@@ -1,0 +1,156 @@
+<div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+  <!-- Header -->
+  <div class="px-6 py-5 border-b border-slate-200 bg-slate-50">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h2 class="text-xl font-bold text-slate-900">Transaction History</h2>
+        <p class="text-sm text-slate-600 mt-1">Recent transactions for this account</p>
+      </div>
+      
+      <!-- Filter Tabs -->
+      <div class="flex bg-white rounded-lg border border-slate-200 p-1">
+        <button 
+          (click)="setFilter('all')"
+          [class]="filter() === 'all' ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-100'"
+          class="px-3 py-1.5 text-sm font-medium rounded-md transition-colors">
+          All
+        </button>
+        <button 
+          (click)="setFilter('completed')"
+          [class]="filter() === 'completed' ? 'bg-green-600 text-white' : 'text-slate-600 hover:bg-slate-100'"
+          class="px-3 py-1.5 text-sm font-medium rounded-md transition-colors">
+          Completed
+        </button>
+        <button 
+          (click)="setFilter('pending')"
+          [class]="filter() === 'pending' ? 'bg-yellow-600 text-white' : 'text-slate-600 hover:bg-slate-100'"
+          class="px-3 py-1.5 text-sm font-medium rounded-md transition-colors">
+          Pending
+        </button>
+        <button 
+          (click)="setFilter('failed')"
+          [class]="filter() === 'failed' ? 'bg-red-600 text-white' : 'text-slate-600 hover:bg-slate-100'"
+          class="px-3 py-1.5 text-sm font-medium rounded-md transition-colors">
+          Failed
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="flex items-center justify-center py-16">
+      <div class="flex flex-col items-center gap-3">
+        <div class="animate-spin h-8 w-8 border-3 border-blue-600 border-t-transparent rounded-full"></div>
+        <p class="text-slate-600 text-sm">Loading transactions...</p>
+      </div>
+    </div>
+  } @else {
+    <!-- Transaction List -->
+    @if (filteredTransactions.length) {
+      <div class="divide-y divide-slate-100">
+        @for (tx of filteredTransactions; track tx.transactionId) {
+          <div class="px-6 py-4 hover:bg-slate-50 transition-colors">
+            <div class="flex items-center justify-between gap-4">
+              <!-- Left Side: Icon + Details -->
+              <div class="flex items-center gap-4 min-w-0">
+                <!-- Transaction Icon -->
+                <div class="flex-shrink-0">
+                  @if (tx.status === 'COMPLETED') {
+                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                      <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                    </div>
+                  } @else if (tx.status === 'PENDING') {
+                    <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                      <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                    </div>
+                  } @else {
+                    <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                      <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                      </svg>
+                    </div>
+                  }
+                </div>
+                
+                <!-- Transaction Details -->
+                <div class="min-w-0">
+                  <p class="text-sm font-semibold text-slate-900 truncate">
+                    {{ tx.description || 'Transfer' }}
+                  </p>
+                  <div class="flex items-center gap-2 mt-1">
+                    <span class="text-xs text-slate-500 font-mono">
+                      #{{ tx.transactionId | slice:0:8 }}
+                    </span>
+                    <span class="text-xs text-slate-400">•</span>
+                    <span class="text-xs text-slate-500">
+                      {{ tx.timestamp | date:'MMM d, y, h:mm a' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Right Side: Amount + Status -->
+              <div class="flex items-center gap-4 flex-shrink-0">
+                <!-- Amount -->
+                <div class="text-right">
+                  <p class="text-lg font-bold" 
+                     [class]="tx.fromAccountId === accountId ? 'text-red-600' : 'text-green-600'">
+                    {{ tx.fromAccountId === accountId ? '-' : '+' }}{{ tx.amount | currency:'USD':'symbol':'1.2-2' }}
+                  </p>
+                </div>
+                
+                <!-- Status Badge -->
+                @if (tx.status === 'COMPLETED') {
+                  <span class="px-2.5 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
+                    Completed
+                  </span>
+                } @else if (tx.status === 'PENDING') {
+                  <span class="px-2.5 py-1 bg-yellow-100 text-yellow-700 text-xs font-semibold rounded-full">
+                    Pending
+                  </span>
+                } @else {
+                  <span class="px-2.5 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded-full">
+                    Failed
+                  </span>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+      
+      <!-- Footer with count -->
+      <div class="px-6 py-4 bg-slate-50 border-t border-slate-200">
+        <p class="text-sm text-slate-600">
+          Showing <span class="font-semibold">{{ filteredTransactions.length }}</span> 
+          @if (filter() !== 'all') {
+            <span>{{ filter() }}</span>
+          }
+          transaction{{ filteredTransactions.length !== 1 ? 's' : '' }}
+        </p>
+      </div>
+    } @else {
+      <!-- Empty State -->
+      <div class="py-16 px-6 text-center">
+        <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-slate-900 mb-2">No Transactions Found</h3>
+        <p class="text-slate-600 text-sm max-w-sm mx-auto">
+          @if (filter() !== 'all') {
+            No {{ filter() }} transactions found. Try selecting a different filter.
+          } @else {
+            This account doesn't have any transactions yet. Start by making a transfer.
+          }
+        </p>
+      </div>
+    }
+  }
+</div>

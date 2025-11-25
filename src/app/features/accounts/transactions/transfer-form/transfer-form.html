@@ -1,0 +1,131 @@
+<div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+  <div class="sm:mx-auto sm:w-full sm:max-w-md">
+    <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+      Transfer Funds
+    </h2>
+    <p class="mt-2 text-center text-sm text-gray-600">
+      Securely move money between accounts
+    </p>
+  </div>
+
+  <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+      
+      <!-- Success Message -->
+      <div *ngIf="status === 'COMPLETED'" class="rounded-md bg-green-50 p-4 mb-6">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-green-800">Transfer Successful</h3>
+            <div class="mt-2 text-sm text-green-700">
+              <p>Transaction ID: <span class="font-mono font-bold">{{ txId }}</span></p>
+            </div>
+            <div class="mt-4">
+              <div class="-mx-2 -my-1.5 flex">
+                <button (click)="reset()" type="button" class="bg-green-50 px-2 py-1.5 rounded-md text-sm font-medium text-green-800 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-green-50 focus:ring-green-600">
+                  Make another transfer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="status === 'FAILED'" class="rounded-md bg-red-50 p-4 mb-6">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-800">Transfer Failed</h3>
+            <div class="mt-2 text-sm text-red-700">
+              <p>Something went wrong. Please try again.</p>
+            </div>
+            <div class="mt-4">
+              <div class="-mx-2 -my-1.5 flex">
+                <button (click)="reset()" type="button" class="bg-red-50 px-2 py-1.5 rounded-md text-sm font-medium text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-red-50 focus:ring-red-600">
+                  Try again
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <form [formGroup]="transferForm" (ngSubmit)="onSubmit()" *ngIf="status === 'IDLE' || status === 'PENDING'" class="space-y-6">
+        
+        <!-- From Account -->
+        <div>
+          <label for="fromAccountId" class="block text-sm font-medium text-gray-700">
+            From Account
+          </label>
+          <div class="mt-1">
+            <select id="fromAccountId" formControlName="fromAccountId" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border">
+              <option value="" disabled>Select source account</option>
+              <option *ngFor="let account of accounts$ | async" [value]="account.accountId">
+                {{ account.accountId }} ({{ account.currency }} {{ account.balance | number:'1.2-2' }})
+              </option>
+            </select>
+          </div>
+          <p *ngIf="transferForm.get('fromAccountId')!.touched && transferForm.get('fromAccountId')!.invalid" class="mt-2 text-sm text-red-600">
+            Please select a source account.
+          </p>
+        </div>
+
+        <!-- To Account -->
+        <div>
+          <label for="toAccountId" class="block text-sm font-medium text-gray-700">
+            To Account
+          </label>
+          <div class="mt-1">
+            <select id="toAccountId" formControlName="toAccountId" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border">
+              <option value="" disabled>Select destination account</option>
+              <option *ngFor="let account of accounts$ | async" [value]="account.accountId">
+                {{ account.accountId }}
+              </option>
+            </select>
+          </div>
+          <p *ngIf="transferForm.get('toAccountId')!.touched && transferForm.get('toAccountId')!.invalid" class="mt-2 text-sm text-red-600">
+            Please select a destination account.
+          </p>
+        </div>
+
+        <!-- Amount -->
+        <div>
+          <label for="amount" class="block text-sm font-medium text-gray-700">
+            Amount
+          </label>
+          <div class="mt-1 relative rounded-md shadow-sm">
+            <input type="number" formControlName="amount" id="amount" class="focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md border py-2 px-3" placeholder="0.00">
+          </div>
+          <p *ngIf="transferForm.get('amount')!.touched && transferForm.get('amount')!.invalid" class="mt-2 text-sm text-red-600">
+            Please enter a valid amount.
+          </p>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div *ngIf="status === 'PENDING'" class="relative pt-1">
+          <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-indigo-200">
+            <div style="width: 100%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-500 animate-pulse"></div>
+          </div>
+          <p class="text-center text-xs text-gray-500">Processing transaction...</p>
+        </div>
+
+        <!-- Submit Button -->
+        <div>
+          <button type="submit" [disabled]="transferForm.invalid || status === 'PENDING'" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed">
+            Transfer Funds
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

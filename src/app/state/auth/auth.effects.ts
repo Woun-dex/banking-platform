@@ -41,6 +41,10 @@ export class AuthEffects {
             // Store token in localStorage (only in browser)
             if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
               localStorage.setItem('token', token);
+              // Also store userId for restoration
+              if (response.userId) {
+                localStorage.setItem('userId', response.userId);
+              }
             }
             
             const decoded: any = jwtDecode(token);
@@ -49,8 +53,7 @@ export class AuthEffects {
             const user = { 
                 id: response.userId || (response as any).userId, 
                 username: decoded.sub, 
-                email: decoded.email, 
-                role: decoded.role 
+                email: decoded.email
             };
 
             return AuthActions.loginSuccess({ token, user });
