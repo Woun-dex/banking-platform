@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 @Injectable({  providedIn: 'root'})
 export class TransactionApiService {
 
-    private readonly baseUrl = `${environment.apiUrl}/${environment.apiVersion}/transactions`;
+    private readonly baseUrl = `${environment.apiUrl}/transactions`;
 
     constructor( private http: HttpClient) { }
 
@@ -17,5 +17,9 @@ export class TransactionApiService {
 
     getHistory(userId: string): Observable<any[]> {
         return this.http.get<any[]>(`${this.baseUrl}/history/user/${userId}`);
+    }
+
+    getTransactionStatus(txId: string) : Observable<TransactionResponse>{
+        return this.http.get<TransactionResponse>(`${this.baseUrl}/${txId}`);
     }
 }

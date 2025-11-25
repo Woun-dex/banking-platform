@@ -10,7 +10,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return store.select(selectAuthState).pipe(
     take(1),
     switchMap(authState => {
+      console.log('🔐 Interceptor - Token exists:', !!authState.token);
+      console.log('🔐 Interceptor - Request URL:', req.url);
+      
       if (authState.token) {
+        console.log('🔐 Adding token to request:', authState.token.substring(0, 30) + '...');
         const cloned = req.clone({
           setHeaders: {
             Authorization: `Bearer ${authState.token}`
@@ -18,6 +22,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         });
         return next(cloned);
       }
+      console.log('🔐 No token available, sending request without auth');
       return next(req);
     })
   );

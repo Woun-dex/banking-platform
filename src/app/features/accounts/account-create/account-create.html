@@ -1,0 +1,108 @@
+<div class="min-h-screen bg-slate-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
+  <div class="sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="flex items-center justify-center mb-4">
+      <a routerLink="/accounts" class="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to accounts
+      </a>
+    </div>
+    <h2 class="text-center text-3xl font-extrabold text-slate-900">
+      Create New Account
+    </h2>
+    <p class="mt-2 text-center text-sm text-slate-600">
+      Set up a new bank account with your preferred currency
+    </p>
+  </div>
+
+  <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="bg-white py-8 px-4 shadow-sm rounded-lg sm:px-10 border border-slate-200">
+      <form [formGroup]="createForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        
+        <div>
+          <label for="currency" class="block text-sm font-medium text-slate-700">
+            Currency
+          </label>
+          <select 
+            id="currency" 
+            formControlName="currency" 
+            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border">
+            <option value="USD">USD - US Dollar</option>
+            <option value="EUR">EUR - Euro</option>
+            <option value="GBP">GBP - British Pound</option>
+            <option value="JPY">JPY - Japanese Yen</option>
+            <option value="CAD">CAD - Canadian Dollar</option>
+            <option value="AUD">AUD - Australian Dollar</option>
+          </select>
+          <p *ngIf="createForm.get('currency')!.touched && createForm.get('currency')!.invalid" 
+             class="mt-2 text-sm text-red-600">
+            Please select a currency.
+          </p>
+        </div>
+
+        <!-- Initial Balance -->
+        <div>
+          <label for="initialBalance" class="block text-sm font-medium text-slate-700">
+            Initial Balance
+          </label>
+          <div class="mt-1 relative rounded-md shadow-sm">
+            <input 
+              type="number" 
+              id="initialBalance" 
+              formControlName="initialBalance" 
+              step="0.01"
+              class="focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-slate-300 rounded-md border py-2 px-3" 
+              placeholder="0.00">
+          </div>
+          <p *ngIf="createForm.get('initialBalance')!.touched && createForm.get('initialBalance')!.invalid" 
+             class="mt-2 text-sm text-red-600">
+            Please enter a valid initial balance (minimum 0).
+          </p>
+        </div>
+
+        <!-- Success Message -->
+        <div *ngIf="submitted" class="rounded-md bg-green-50 p-4">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm font-medium text-green-800">
+                Account created successfully! Redirecting...
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div>
+          <button 
+            type="submit" 
+            [disabled]="createForm.invalid || submitted"
+            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            <span *ngIf="!submitted">Create Account</span>
+            <span *ngIf="submitted" class="flex items-center gap-2">
+              <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Creating...
+            </span>
+          </button>
+        </div>
+
+        <!-- Cancel Button -->
+        <div>
+          <a 
+            routerLink="/accounts"
+            class="w-full flex justify-center py-2 px-4 border border-slate-300 rounded-md shadow-sm text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+            Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

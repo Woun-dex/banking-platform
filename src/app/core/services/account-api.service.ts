@@ -11,11 +11,11 @@ export class AcountApiService {
 
     constructor(private http: HttpClient) { }
 
-    createAccount(accountData: CreateAccountDto): Observable<any> {
-        return this.http.post<any>(`${this.baseUrl}/create`, accountData);
+    createAccount(accountData: CreateAccountDto): Observable<AccountResponse> {
+        return this.http.post<AccountResponse>(`${this.baseUrl}`, accountData);
     }
 
-    getAccountDetails(userId: string): Observable<AccountResponse> {
-        return this.http.get<AccountResponse>(`${this.baseUrl}/user/${userId}`);
+    getAccountDetails(userId: string): Observable<AccountResponse[]> {
+        return this.http.get<AccountResponse[]>(`${this.baseUrl}/user/${userId}`);
     }
 }
